@@ -16,9 +16,9 @@ class Advance(models.Model):
     recipient = models.CharField(max_length=255, verbose_name="المستفيد")
     recipient_entity = models.ForeignKey(Entity, on_delete=models.CASCADE, verbose_name="الجهة تابع لها - المستفيد" ,related_name='recipient')
     recipient_id = models.CharField(max_length=255, verbose_name="المستفيد - رقم الوطني")
-    guarantor = models.CharField(max_length=255, verbose_name="الضامن")
-    guarantor_entity = models.ForeignKey(Entity, on_delete=models.CASCADE, verbose_name="الجهة تابع لها - المستفيد",related_name='guarantor')
-    guarantor_id = models.CharField(max_length=255, verbose_name="الضامن - رقم الوطني")
+    guarantor = models.CharField(max_length=255, verbose_name="الضامن",unique=True)
+    guarantor_entity = models.ForeignKey(Entity, on_delete=models.CASCADE, verbose_name="الجهة تابع لها - الضامن",related_name='guarantor')
+    guarantor_id = models.CharField(max_length=255, verbose_name="الضامن - رقم الوطني",unique=True)
     purpose = models.TextField(verbose_name="الغرض")
     approved_by = models.CharField(max_length=255, blank=True, null=True, verbose_name="المعتمد")
 
@@ -60,14 +60,96 @@ class PaymentVoucher(models.Model):
         verbose_name_plural = "إذونات الصرف"
 
 class ReconciliationMemo(models.Model):
-    memo_number = models.CharField(max_length=50, unique=True, verbose_name="رقم المذكرة")
-    date = models.DateField(verbose_name="التاريخ")
-    account = models.CharField(max_length=255, verbose_name="الحساب")
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="المبلغ الإجمالي")
-    notes = models.TextField(verbose_name="ملاحظات")
+    memo_number = models.CharField(
+        max_length=50, 
+        unique=True, 
+        verbose_name="رقم المذكرة"
+    )
+    date = models.DateField(
+        verbose_name="التاريخ"
+    )
+    account = models.CharField(
+        max_length=255, 
+        verbose_name="الحساب"
+    )
+
+    # Balances
+    beginning_balance = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        verbose_name="رصيد دفتر بداية الشهر"
+    )
+    deposits_during_month = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        verbose_name="الإيداع خلال الشهر"
+    )
+    withdrawals_during_month = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        verbose_name="المسحوبات خلال الشهر"
+    )
+    ending_balance = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        verbose_name="رصيد دفتر نهاية الشهر"
+    )
+
+    # Reconciliation with bank statement
+    statement_balance = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        verbose_name="رصيد كشف حساب"
+    )
+    checks_not_recorded = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0.00, 
+        verbose_name="صكوك لم تسجل في الدفتر"
+    )
+    checks_not_cleared = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0.00, 
+        verbose_name="صكوك لم تظهر"
+    )
+    unrecorded_revenues = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0.00, 
+        verbose_name="إيرادات لم تسجل في الدفتر"
+    )
+    additional_bank_entries = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0.00, 
+        verbose_name="إضافة مبالغ في كشف الحساب"
+    )
+
+    # Differences
+    withdrawal_discrepancies = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0.00, 
+        verbose_name="فروقات سحب"
+    )
+    deposit_discrepancies = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0.00, 
+        verbose_name="فروقات إيداع"
+    )
+
+    # Final reconciled balance
+    reconciled_balance = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        verbose_name="الرصيد الدفتري بعد التسوية"
+    )
 
     def __str__(self):
-        return f"Memo {self.memo_number} - {self.account} - {self.total_amount}"
+        return f"Reconciliation Memo {self.memo_number} - {self.account} - {self.date}"
+
 
     class Meta:
         verbose_name = "مذكرة تسوية"

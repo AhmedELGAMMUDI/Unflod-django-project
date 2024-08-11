@@ -43,8 +43,8 @@ class PaymentVoucherAdmin(ModelAdmin):
 
 @admin.register(ReconciliationMemo)
 class ReconciliationMemoAdmin(ModelAdmin):
-    list_display = ('memo_number', 'date', 'account', 'total_amount')
-
+    # list_display = '__all__'
+    
     class Meta:
         verbose_name = "مذكرة تسوية"
         verbose_name_plural = "مذكرات التسوية"
@@ -53,6 +53,7 @@ class ReconciliationMemoAdmin(ModelAdmin):
 @admin.register(Deposit)
 class DepositAdmin(ModelAdmin):
     list_display = ('deposit_number', 'date', 'amount', 'account')
+    search_fields = ('deposit_number', 'date', 'amount', 'account')
 
     class Meta:
         verbose_name = "إيداع"
@@ -62,6 +63,7 @@ class DepositAdmin(ModelAdmin):
 @admin.register(Withdrawal)
 class WithdrawalAdmin(ModelAdmin):
     list_display = ('withdrawal_number', 'date', 'amount', 'account')
+    search_fields = ('withdrawal_number', 'date', 'amount', 'account')
 
     class Meta:
         verbose_name = "مسحوب"
@@ -71,7 +73,7 @@ class WithdrawalAdmin(ModelAdmin):
 @admin.register(OutstandingItem)
 class OutstandingItemAdmin(ModelAdmin):
     list_display = ('item_type', 'item_number', 'amount', 'status', 'date')
-
+    search_fields = ('item_type', 'item_number', 'amount', 'status', 'date')
     class Meta:
         verbose_name = "عنصر معلق"
         verbose_name_plural = "العناصر المعلقة"
@@ -80,7 +82,7 @@ class OutstandingItemAdmin(ModelAdmin):
 @admin.register(DepositDiscrepancy)
 class DepositDiscrepancyAdmin(ModelAdmin):
     list_display = ('discrepancy_number', 'deposit', 'recorded_amount', 'actual_amount', 'resolved')
-
+    search_fields = ('discrepancy_number', 'deposit', 'recorded_amount', 'actual_amount', 'resolved')
     class Meta:
         verbose_name = "فرق الإيداع"
         verbose_name_plural = "فروق الإيداعات"
