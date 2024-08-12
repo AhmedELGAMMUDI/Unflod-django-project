@@ -9,6 +9,8 @@ class Entity(models.Model):
     class Meta:
         verbose_name = "الجهات التابعة"
         verbose_name_plural = "الجهات التابعة"
+
+        
 class Advance(models.Model):
     advance_number = models.CharField(max_length=50, unique=True, verbose_name="رقم السلفة")
     date = models.DateField(verbose_name="التاريخ")
@@ -34,6 +36,8 @@ class Grant(models.Model):
     date = models.DateField(verbose_name="التاريخ")
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="المبلغ")
     recipient = models.CharField(max_length=255, verbose_name="المستفيد")
+    recipient_entity = models.ForeignKey(Entity, on_delete=models.CASCADE, verbose_name="الجهة تابع لها - المستفيد" ,related_name='recipient_id')
+    recipient_id = models.CharField(max_length=255, verbose_name="رقم الوطني للمستفيد")
     purpose = models.TextField(verbose_name="الغرض")
     approved_by = models.CharField(max_length=255, blank=True, null=True, verbose_name="المعتمد")
 
@@ -161,6 +165,15 @@ class Deposit(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="المبلغ")
     account = models.CharField(max_length=255, verbose_name="الحساب")
     description = models.TextField(verbose_name="الوصف")
+    reconciliation_memo = models.ForeignKey(
+        ReconciliationMemo, 
+        on_delete=models.CASCADE, 
+        related_name='deposits', 
+        verbose_name="مذكرة التسوية",
+        blank=True, 
+        null=True,
+        editable=False  # This hides the field from forms and admin
+    )
 
     def __str__(self):
         return f"Deposit {self.deposit_number} - {self.amount}"
@@ -175,6 +188,15 @@ class Withdrawal(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="المبلغ")
     account = models.CharField(max_length=255, verbose_name="الحساب")
     description = models.TextField(verbose_name="الوصف")
+    reconciliation_memo = models.ForeignKey(
+        ReconciliationMemo, 
+        on_delete=models.CASCADE, 
+        related_name='withdrawals', 
+        verbose_name="مذكرة التسوية",
+        blank=True, 
+        null=True,
+        editable=False  # This hides the field from forms and admin
+    )
 
     def __str__(self):
         return f"Withdrawal {self.withdrawal_number} - {self.amount}"
@@ -189,6 +211,16 @@ class OutstandingItem(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="المبلغ")
     status = models.CharField(max_length=50, choices=[('Pending', 'معلق'), ('Cleared', 'تم تسويته')], verbose_name="الحالة")
     date = models.DateField(verbose_name="التاريخ")
+    reconciliation_memo = models.ForeignKey(
+        ReconciliationMemo, 
+        on_delete=models.CASCADE, 
+        related_name='outstanding_items', 
+        verbose_name="مذكرة التسوية",
+        blank=True, 
+        null=True,
+        editable=False  # This hides the field from forms and admin
+        
+    )
 
     def __str__(self):
         return f"Outstanding Item {self.item_number} - {self.amount} - {self.status}"
@@ -199,12 +231,21 @@ class OutstandingItem(models.Model):
 
 class DepositDiscrepancy(models.Model):
     discrepancy_number = models.CharField(max_length=50, unique=True, verbose_name="رقم الفرق")
-    deposit = models.ForeignKey(Deposit, on_delete=models.CASCADE, verbose_name="الإيداع")
+    # deposit = models.ForeignKey(Deposit, on_delete=models.CASCADE, verbose_name="الإيداع")
     recorded_amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="المبلغ المسجل")
     actual_amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="المبلغ الفعلي")
     description = models.TextField(verbose_name="الوصف")
     resolved = models.BooleanField(default=False, verbose_name="تم التسوية")
-
+    reconciliation_memo = models.ForeignKey(
+        ReconciliationMemo, 
+        on_delete=models.CASCADE, 
+        related_name='deposit_discrepancy', 
+        verbose_name="مذكرة التسوية",
+        blank=True, 
+        null=True,
+        editable=False  # This hides the field from forms and admin
+        
+    )
     def __str__(self):
         return f"Discrepancy {self.discrepancy_number} - {self.recorded_amount} vs {self.actual_amount}"
 

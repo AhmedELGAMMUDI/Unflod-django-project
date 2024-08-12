@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Deposit {{ deposit.deposit_number }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .deposit-info { margin: 20px; }
+        .deposit-info h1 { font-size: 24px; }
+        .deposit-info p { font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div class="deposit-info">
+        <h1>Deposit Details</h1>
+        <p><strong>Deposit Number:</strong> {{ deposit.deposit_number }}</p>
+        <p><strong>Date:</strong> {{ deposit.date }}</p>
+        <p><strong>Amount:</strong> {{ deposit.amount }}</p>
+        <p><strong>Account:</strong> {{ deposit.account }}</p>
+        <p><strong>Description:</strong> {{ deposit.description }}</p>
+    </div>
+</body>
+</html>
