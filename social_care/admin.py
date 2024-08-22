@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Entity,Advance, Grant, PaymentVoucher, ReconciliationMemo, Deposit, Withdrawal, OutstandingItem, DepositDiscrepancy
+from .models import Entity,Advance, Grant, PaymentVoucher, ReconciliationMemo, Deposit, Withdrawal, OutstandingItem, DepositDiscrepancy,UnregisteredBond,UnlistedBond
 from unfold.admin import ModelAdmin
 from django.contrib.auth.models import User,Group
 from unfold.admin import TabularInline
@@ -142,6 +142,14 @@ class DepositDiscrepancyInline(TabularInline):
     model = DepositDiscrepancy
     extra = 1
 
+class UnregisteredBondInline(TabularInline):
+    model = UnregisteredBond
+    extra = 1
+
+class UnlistedBondInline(TabularInline):
+    model = UnlistedBond
+    extra = 1
+
 
 @admin.register(ReconciliationMemo)
 class ReconciliationMemoAdmin(ModelAdmin):
@@ -150,7 +158,7 @@ class ReconciliationMemoAdmin(ModelAdmin):
     list_filter = (
         ("date", RangeDateFilter),  # Date filter
     )
-    inlines = [DepositInline, WithdrawalInline, OutstandingItemInline, DepositDiscrepancyInline]
+    inlines = [DepositInline, WithdrawalInline, OutstandingItemInline, DepositDiscrepancyInline,UnregisteredBondInline,UnlistedBondInline]
     class Meta:
         verbose_name = "مذكرة تسوية"
         verbose_name_plural = "مذكرات التسوية"

@@ -105,18 +105,18 @@ class ReconciliationMemo(models.Model):
         decimal_places=2, 
         verbose_name="رصيد كشف حساب"
     )
-    checks_not_recorded = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        default=0.00, 
-        verbose_name="صكوك لم تسجل في الدفتر"
-    )
-    checks_not_cleared = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        default=0.00, 
-        verbose_name="صكوك لم تظهر"
-    )
+    # checks_not_recorded = models.DecimalField(
+    #     max_digits=10, 
+    #     decimal_places=2, 
+    #     default=0.00, 
+    #     verbose_name="صكوك لم تسجل في الدفتر"
+    # )
+    # checks_not_cleared = models.DecimalField(
+    #     max_digits=10, 
+    #     decimal_places=2, 
+    #     default=0.00, 
+    #     verbose_name="صكوك لم تظهر"
+    # )
     unrecorded_revenues = models.DecimalField(
         max_digits=10, 
         decimal_places=2, 
@@ -252,3 +252,59 @@ class DepositDiscrepancy(models.Model):
     class Meta:
         verbose_name = "فرق الإيداع"
         verbose_name_plural = "فروق الإيداعات"
+
+
+
+class UnregisteredBond(models.Model):
+    bond_number = models.CharField("رقم الصك", max_length=100, unique=True)
+    bond_date = models.DateField("تاريخ الصك")
+    bond_value = models.DecimalField("قيمة الصك", max_digits=20, decimal_places=2)
+    issuer = models.CharField("الجهة المصدرة", max_length=255)
+    reason_not_registered = models.TextField("سبب عدم التسجيل", blank=True, null=True)
+    notes = models.TextField("ملاحظات", blank=True, null=True)
+    created_at = models.DateTimeField("تاريخ الإدخال", auto_now_add=True)
+    updated_at = models.DateTimeField("تاريخ التحديث", auto_now=True)
+    reconciliation_memo = models.ForeignKey(
+        ReconciliationMemo, 
+        on_delete=models.CASCADE, 
+        related_name='unregistered_bond', 
+        verbose_name="صك غير مسجل",
+        blank=True, 
+        null=True,
+        editable=False  # This hides the field from forms and admin
+        
+    )
+    class Meta:
+        verbose_name = "صك غير مسجل"
+        verbose_name_plural = "صكوك غير مسجلة"
+
+    def __str__(self):
+        return f"صك رقم {self.bond_number} - {self.issuer}"
+
+
+class UnlistedBond(models.Model):
+    bond_number = models.CharField("رقم الصك", max_length=100, unique=True)
+    bond_date = models.DateField("تاريخ الصك")
+    bond_value = models.DecimalField("قيمة الصك", max_digits=20, decimal_places=2)
+    issuer = models.CharField("الجهة المصدرة", max_length=255)
+    reason_not_listed = models.TextField("سبب عدم الظهور", blank=True, null=True)
+    detected_on = models.DateField("تاريخ اكتشاف الصك", null=True, blank=True)
+    notes = models.TextField("ملاحظات", blank=True, null=True)
+    created_at = models.DateTimeField("تاريخ الإدخال", auto_now_add=True)
+    updated_at = models.DateTimeField("تاريخ التحديث", auto_now=True)
+    reconciliation_memo = models.ForeignKey(
+        ReconciliationMemo, 
+        on_delete=models.CASCADE, 
+        related_name='unlisted_bond', 
+        verbose_name="صك لم يظهر",
+        blank=True, 
+        null=True,
+        editable=False  # This hides the field from forms and admin
+        
+    )
+    class Meta:
+        verbose_name = "صك لم يظهر"
+        verbose_name_plural = "صكوك لم تظهر"
+
+    def __str__(self):
+        return f"صك رقم {self.bond_number} - {self.issuer}"
